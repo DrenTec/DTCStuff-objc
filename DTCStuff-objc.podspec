@@ -9,17 +9,16 @@ Pod::Spec.new do |s|
   s.summary      = 'Utility code re-used across objc projects'
   s.homepage     = 'https://github.com/drentec/DTCStuff-objc'
   s.author       = 'Dren Tec SAS'
-  # s.source       = { :git => 'git://github.com/drentec/DTCStuff-objc.git', :tag => 'v0.1' }
-  s.source       = { :git => '/Users/eric/Documents/Private/Paris/DrenTec/old_data/DrenTec/DTCStuff-iOS/DTCStuff-objc/' }
+  s.source       = { :git => 'git://github.com/DrenTec/DTCStuff-objc.git', :tag => 'v0.1' }
   s.source_files = 'Foundation/*'
   s.clean_paths  = ["*.xcodeproj", "*.xcworkspace"]
   s.subspec 'iOS' do |iOS|
     iOS.source_files = 'iOS/*'
-    iOS.platform = :ios, '5.0'
-    iOS.dependency 'Reachability', '~> 3.0.0'
+    iOS.platform = :ios, '4.3'
+    iOS.dependency 'Reachability', '>= 3.0.0'
     iOS.subspec 'StyleExt' do |t20|
       t20.source_files = 'iOS-StyleExt/*'
-      t20.dependency 'Three20Lite', '~> 2.0.0'
+      t20.dependency 'Three20Lite', '>= 2.0.0'
     end
   end
 end
