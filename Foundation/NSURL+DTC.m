@@ -15,7 +15,7 @@
   NSMutableString *absolute = [NSMutableString stringWithFormat:@"%@://", scheme];
   if (user || password) {
     if (user) [absolute appendString:user];
-    if (password) [absolute appendFormat:@":%@"];
+    if (password) [absolute appendFormat:@":%@", password];
     [absolute appendString:@"@"];
   }
   [absolute appendString:host];
