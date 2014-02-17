@@ -15,9 +15,10 @@ Pod::Spec.new do |s|
     iOS.source_files = 'iOS/*'
     iOS.platform = :ios, '4.3'
     iOS.dependency 'Reachability', '>= 3.0.0'
-    iOS.subspec 'StyleExt' do |t20|
-      t20.source_files = 'iOS-StyleExt/*'
-      t20.dependency 'Three20Lite', '>= 2.0.0'
-    end
+  end
+  s.subspec 'StyleExt' do |t20|
+    t20.dependency 'DTCStuff-objc/iOS'
+    t20.source_files = 'iOS-StyleExt/*'
+    t20.dependency 'Three20Lite', '>= 2.1.0'
   end
 end
