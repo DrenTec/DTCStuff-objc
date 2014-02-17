@@ -11,7 +11,6 @@ Pod::Spec.new do |s|
   s.author       = 'Dren Tec SAS'
   s.source       = { :git => 'git://github.com/DrenTec/DTCStuff-objc.git', :tag => 'v0.1' }
   s.source_files = 'Foundation/*'
-  s.clean_paths  = ["*.xcodeproj", "*.xcworkspace"]
   s.subspec 'iOS' do |iOS|
     iOS.source_files = 'iOS/*'
     iOS.platform = :ios, '4.3'
