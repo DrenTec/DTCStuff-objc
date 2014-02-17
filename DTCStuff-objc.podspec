@@ -10,11 +10,14 @@ Pod::Spec.new do |s|
   s.homepage     = 'https://github.com/drentec/DTCStuff-objc'
   s.author       = 'Dren Tec SAS'
   s.source       = { :git => 'git://github.com/DrenTec/DTCStuff-objc.git', :tag => 'v0.1' }
-  s.source_files = 'Foundation/*'
+  s.subspec 'Foundation' do |foundation|
+    foundation.source_files = 'Foundation/*'
+  end
   s.subspec 'iOS' do |iOS|
     iOS.source_files = 'iOS/*'
     iOS.platform = :ios, '4.3'
     iOS.dependency 'Reachability', '>= 3.0.0'
+    iOS.dependency 'DTCStuff-objc/Foundation'
   end
   s.subspec 'StyleExt' do |t20|
     t20.dependency 'DTCStuff-objc/iOS'
