@@ -10,6 +10,7 @@ Pod::Spec.new do |s|
   s.homepage     = 'https://github.com/drentec/DTCStuff-objc'
   s.author       = 'Dren Tec SAS'
   s.source       = { :git => 'git://github.com/DrenTec/DTCStuff-objc.git', :tag => 'v0.1' }
+  s.requires_arc = false
   s.subspec 'Foundation' do |foundation|
     foundation.source_files = 'Foundation/*'
   end
