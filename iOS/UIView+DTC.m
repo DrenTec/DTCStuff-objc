@@ -1,6 +1,7 @@
 #import "UIView+DTC.h"
 #import "DTCGeometry.h"
 #import <QuartzCore/QuartzCore.h>
+#import "NSInvocation+DTC.h"
 
 @implementation UIView (DTC)
 
@@ -90,6 +91,90 @@
   UIImage * img = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
   return img;
+}
+
+- (void)dtc_forSubviewWhen:(BOOL (^)(UIView *view))predicate
+                   recurse:(BOOL)recurse
+                        do:(void (^)(UIView *view))handler {
+  for (UIView *childView in self.subviews) {
+    if ([childView conformsToProtocol:@protocol(UILayoutSupport)])
+      continue;
+    if (predicate(childView))
+      handler(childView);
+    if (recurse)
+      [childView dtc_forSubviewWhen:predicate
+                            recurse:YES
+                                 do:handler];
+  }
+}
+- (void)dtc_forSubviewOfKind:(Class)klass
+                     recurse:(BOOL)recurse
+                          do:(void (^)(UIView *view))handler {
+  [self dtc_forSubviewWhen:^BOOL(UIView *childView) { return !klass || [childView isKindOfClass:klass]; }
+                   recurse:recurse
+                        do:handler];
+}
+
++ (void)dtc_style:(NSObject *)obj
+             with:(id)style
+    styleProvider:(NSDictionary *(^)(NSString *styleName))styleProvider {
+  if ([style isKindOfClass:[NSString class]])
+    style = styleProvider(style);
+  if (!style)
+    return;
+  for (NSString *key in style) {
+    id value = [style objectForKey:key];
+    id object = nil;
+    if ([value isKindOfClass:[NSDictionary class]]) {
+      if ([key hasPrefix:@"<"]) {
+        NSString *className = [key substringFromIndex:1];
+        BOOL recursive = NO;
+        if ([className hasPrefix:@"<"]) {
+          recursive = YES;
+          className = [className substringFromIndex:1];
+        }
+        Class class = NSClassFromString(className);
+        if (!class) {
+          NSLog(@"Error in style: class name '%@' not found", className);
+        } else if (![obj isKindOfClass:[UIView class]]) {
+          NSLog(@"Error in style: cannot search for instances of '%@', because the root object is not a UIView (its a %@)", className, obj);
+        } else {
+          [(UIView *)obj dtc_forSubviewOfKind:class
+                                      recurse:recursive
+                                           do:^(UIView *view) {
+                                             [UIView dtc_style:view with:value styleProvider:styleProvider];
+                                           }];
+        }
+      }
+      else {
+        if ([key hasPrefix:@"$"]) {
+          NSInteger tagNumber = [[key substringFromIndex:1] integerValue];
+          object = [(UIView *)obj viewWithTag:tagNumber];
+        } else {
+          object = [obj valueForKeyPath:key];
+        }
+        [UIView dtc_style:object with:value styleProvider:styleProvider];
+      }
+    } else {
+      if ([key isEqualToString:@"include"]) {
+        NSArray *items = [value isKindOfClass:[NSArray class]] ? (NSArray*)value : [NSArray arrayWithObject:value];
+        for (id includedStyle in items)
+          [UIView dtc_style:obj with:includedStyle styleProvider:styleProvider];
+      } else if ([key rangeOfString:@":"].location != NSNotFound) {
+        if (![value isKindOfClass:[NSArray class]]) {
+          NSLog(@"Warning: style method call '%@' performed on non array", key);
+          value = [NSArray arrayWithObject:value];
+        }
+        [[NSInvocation dtc_invocationForSelectorName:key
+                                                  of:obj
+                                                  on:obj
+                                           andRetain:NO
+                                           arguments:(NSArray *)value] invoke];
+      } else {
+        [obj setValue:value forKeyPath:key];
+      }
+    }
+  }
 }
 
 @end
