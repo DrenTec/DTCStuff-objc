@@ -9,3 +9,5 @@
 #import "NSDictionary+DTC.h"
 #import "NSString+DTC.h"
 #import "NSURL+DTC.h"
+#import "NSMethodSignature+DTC.h"
+#import "NSInvocation+DTC.h"
