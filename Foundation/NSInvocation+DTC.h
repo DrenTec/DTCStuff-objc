@@ -1,11 +1,19 @@
 #import <Foundation/Foundation.h>
 
 @interface NSInvocation (DTC)
-
-- (void)dtc_setArguments:(NSInteger)count to:(id)value, ...;
+/**
+ * Set arguments to list. Each argument must have the size of an id. See note on
+ * dtc_setArgumentsToArray: for other sizes.
+ */
+- (void)dtc_setArguments:(NSInteger)count to:(id)value, ...
+  NS_REQUIRES_NIL_TERMINATION;
 - (void)dtc_setArguments:(NSInteger)count toArg:(void *)arg thenList:(va_list)list;
+/**
+ *  Set arguments to contents of array. If an argument has a different size than
+ *  sizeof(id), it must be in an NSValue. Conversely, for a pointer to an NSValue
+ *  put that pointer in another NSValue
+ */
 - (void)dtc_setArgumentsToArray:(NSArray *)array;
-
 
 - (void)dtc_handleReturn:(void (^)(NSInteger returnSize, void *pointer))handler;
 - (void)dtc_handleNoReturn:(void (^)())voidHandler

@@ -24,17 +24,24 @@
 }
 
 - (void)dtc_setArgumentsToArray:(NSArray *)array {
+#define LOCAL_BUFFER_SIZE 16
+  UInt8 localBuffer[LOCAL_BUFFER_SIZE];
   NSInteger i = 2;
   for (id object in array) {
     id value = object;
     if ([object isKindOfClass:[NSValue class]]) {
       const char *types = [(NSValue *)object objCType];
       NSUInteger size = 0;
-      NSGetSizeAndAlignment(types, NULL, &size);
-      void *data = malloc(size);
+      NSUInteger alignment = 0;
+      NSGetSizeAndAlignment(types, &size, &alignment);
+      NSUInteger remainder = size % alignment;
+      size = alignment > size ? alignment : (remainder ? (size + (alignment - remainder)) : size);
+      BOOL useMalloc = size > sizeof(localBuffer);
+      void *data = useMalloc ? malloc(size) : localBuffer;
       [(NSValue *)object getValue:data];
       [self setArgument:data atIndex:i++];
-      free(data);
+      if (useMalloc)
+        free(data);
     } else {
       if ([object isKindOfClass:[NSNull class]]) {
         value = nil;
