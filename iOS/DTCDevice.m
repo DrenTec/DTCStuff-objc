@@ -30,8 +30,18 @@
   return [self stringWithSysCtlInfoNamed:"hw.machine"];
 }
 
+static inline NSInteger min(NSInteger a, NSInteger b) {
+  return a < b ? a : b;
+}
+
 + (NSString*)preferredLocales {
-	return [[[NSLocale preferredLanguages] subarrayWithRange:NSMakeRange(0, 2)] componentsJoinedByString:@"/"];
+  NSArray *locales = [NSLocale preferredLanguages];
+	return [[locales subarrayWithRange:NSMakeRange(0, min(2, locales.count))] componentsJoinedByString:@","];
+}
+
++ (NSString*)preferredAppLocales {
+  NSArray *locales = [[NSBundle mainBundle] preferredLocalizations];
+	return [[locales subarrayWithRange:NSMakeRange(0, min(2, locales.count))] componentsJoinedByString:@","];
 }
 
 + (NSString*)UID {
@@ -50,7 +60,8 @@
 
 + (NSMutableDictionary *)info {
   UIDevice *device = [UIDevice currentDevice];
-  NSDictionary *plist = [[NSBundle mainBundle] infoDictionary];
+  NSBundle *mainBundle = [NSBundle mainBundle];
+  NSDictionary *plist = [mainBundle infoDictionary];
   UIScreen *screen = [UIScreen mainScreen];
   NSDictionary *screenSize = (NSDictionary *)CGSizeCreateDictionaryRepresentation(screen.bounds.size);
   NSNumber *screenScale = [NSNumber numberWithFloat:screen.scale];
@@ -65,6 +76,7 @@
           [device systemVersion],                                 @"DeviceVersion",
           [self preferredLocales],                                @"DeviceLocales",
           screenDict,                                             @"DeviceScreen",
+          [self preferredAppLocales],                             @"AppLocale",
           [plist objectForKey:(NSString*)kCFBundleVersionKey],    @"AppVersion",
           [plist objectForKey:(NSString*)kCFBundleNameKey],       @"AppName",
           [plist objectForKey:(NSString*)kCFBundleIdentifierKey], @"AppID",
